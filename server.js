@@ -85,6 +85,17 @@ app.post("/shorten", async (req, res) => {
   });
 });
 
+// Home page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "home.html"));
+});
+
+// URL shortener page
+app.get("/app", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "app.html"));
+});
+
+
 // Redirect Route
 app.get("/:code", async (req, res) => {
   const { code } = req.params;
