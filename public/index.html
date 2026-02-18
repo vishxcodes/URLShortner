@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Shortener</title>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --card: #f5f5f5;
+      --border: #e0e0e0;
+    }
+
+    body.dark {
+      --bg: #0f0f0f;
+      --text: #f5f5f5;
+      --card: #1a1a1a;
+      --border: #333333;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 500px;
+      background: var(--card);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 25px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--text);
+    }
+
+    button {
+      padding: 12px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: 0.2s;
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .result {
+      margin-top: 20px;
+      word-break: break-all;
+      display: none;
+    }
+
+    .result a {
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .copy-btn:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    .toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: var(--card);
+      transition: 0.2s;
+    }
+
+    .toggle:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    @media (max-width: 480px) {
+      .input-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="toggle" onclick="toggleDarkMode()">Toggle Mode</div>
+
+  <div class="container">
+    <h1>Simple URL Shortener</h1>
+
+    <div class="input-group">
+      <input type="text" id="urlInput" placeholder="Paste your long URL here..." />
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="aliasInput" placeholder="Custom alias (optional)" />
+      <button onclick="shortenUrl()">Shorten</button>
+    </div>
+
+    <div class="result" id="result">
+      <p id="shortLink"></p>
+      <button class="copy-btn" onclick="copyUrl()">Copy to Clipboard</button>
+    </div>
+  </div>
+
+  <script>
+    async function shortenUrl() {
+      const url = document.getElementById("urlInput").value;
+      const alias = document.getElementById("aliasInput").value;
+
+      if (!url) return alert("Please enter a URL");
+
+      const response = await fetch("/shorten", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          originalUrl: url,
+          customAlias: alias
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const resultDiv = document.getElementById("result");
+        const shortLink = document.getElementById("shortLink");
+
+        shortLink.innerHTML =
+          `<a href="${data.shortUrl}" target="_blank">${data.shortUrl}</a>`;
+
+        resultDiv.style.display = "block";
+      } else {
+        alert(data.error);
+      }
+    }
+
+    function copyUrl() {
+      const link = document.getElementById("shortLink").innerText;
+      navigator.clipboard.writeText(link);
+      alert("Copied to clipboard!");
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark");
+    }
+  </script>
+
+</body>
+</html>
