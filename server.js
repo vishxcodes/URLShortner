@@ -8,7 +8,6 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 // Middleware
 app.use(express.json());
@@ -78,8 +77,11 @@ app.post("/shorten", async (req, res) => {
 
   await newUrl.save();
 
+  // 🔥 Dynamic host detection (works locally and on Render)
+  const fullUrl = `${req.protocol}://${req.get("host")}/${shortCode}`;
+
   res.json({
-    shortUrl: `${BASE_URL}/${shortCode}`,
+    shortUrl: fullUrl,
   });
 });
 
